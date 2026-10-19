@@ -19,7 +19,6 @@ package de.thaler.donotjiggle;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -101,8 +100,8 @@ public class MainActivity extends AppCompatActivity {
         String DeviceName = mPreferenz.getString("DeviceName", "Nothing Phone (3a) Pro");
         Log.i(TAG, DeviceName);
 
-        Intent intent = new Intent(mainActivity, SensorListener.class);
-        startService(intent);
+        Intent intentSensor = new Intent(mainActivity, SensorListener.class);
+        startService(intentSensor);
         // create handler
         LoopThread = new HandlerThread("LoopTimerBT");
         LoopThread.start();
@@ -110,16 +109,15 @@ public class MainActivity extends AppCompatActivity {
         loop = new Runnable() {
             @Override
             public void run() {
-                startService(intent);
                 if (!isBluetoothEnabled()) { //Log.i(TAG, "isBluetoothEnabled " + isBluetoothEnabled());
                     textViewConnect.setText("BT einschalten");
                     DeviceConnected = false;
+                    bgHandler.postDelayed(loop, 5000L); // so lange bis bt eingeschaltet
                 } else {
                     textViewConnect.setText("wait ...");
-                    BluetoothDevice device = BluetoothConnectionMonitor.devicesByName(DeviceName);
-                    BluetoothConnectionMonitor.connectedBT(device);
+                    Intent intentBT = new Intent(mainActivity, BluetoothService.class);
+                    startService(intentBT);
                 }
-                bgHandler.postDelayed(loop, 5000L);
             }
         };
         bgHandler.removeCallbacks(loop);
@@ -139,22 +137,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.e(TAG, "in destroy");
         if (BluetoothConnectionMonitor.bluetoothConnectionMonitor != null) {
             BluetoothConnectionMonitor.bluetoothConnectionMonitor.close();
         }
+        Intent intent = new Intent(mainActivity, SensorListener.class);
+        stopService(intent);
     }
     @Override
     protected void onPause() {
         super.onPause();
-        if (BluetoothConnectionMonitor.bluetoothConnectionMonitor == null) {
-            connectBluetoothDevice();
-        }
+        Log.e(TAG, "in pause");
+        connectBluetoothDevice();
     }
     @Override
     protected void onResume() {
         super.onResume();
-        if (BluetoothConnectionMonitor.bluetoothConnectionMonitor == null) {
-            connectBluetoothDevice();
-        }
+        Log.e(TAG, "in resume");
+        connectBluetoothDevice();
     }
 }

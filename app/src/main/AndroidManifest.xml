@@ -29,6 +29,9 @@
         <service
             android:name=".SensorListener"
             android:exported="false" />
+        <service
+            android:name=".BluetoothService"
+            android:exported="false" />
     </application>
 
 

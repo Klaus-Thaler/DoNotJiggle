@@ -19,6 +19,7 @@ package de.thaler.donotjiggle;
 import static de.thaler.donotjiggle.MainActivity.mainActivity;
 
 import android.app.Service;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -77,8 +78,16 @@ public class SensorListener extends Service implements SensorEventListener {
 
         long now = System.currentTimeMillis();
         if (gForce > mPreferenz.getFloat("gForce",1.1F)
-                && now - lastShakeTime > mPreferenz.getLong("shakeTime", 1000L)) {
+                && now - lastShakeTime > mPreferenz.getLong("shakeTime", 17000L)) {
             // gForce = empfindlichkeit, shakeTime = pause dazwischen
+
+            if (!mainActivity.DeviceConnected) {
+                if (BluetoothConnectionMonitor.bluetoothConnectionMonitor != null) {
+                    BluetoothConnectionMonitor.bluetoothConnectionMonitor.close();
+                }
+                BluetoothDevice device = BluetoothConnectionMonitor.devicesByName("Nothing Phone (3a) Pro");
+                BluetoothConnectionMonitor.connectedBT(device);
+            }
             lastShakeTime = now; // neue zeit für den nächsten schüttler
             Toast.makeText(this, "Geschüttelt!", Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Geschüttelt!");
@@ -96,8 +105,8 @@ public class SensorListener extends Service implements SensorEventListener {
             //Log.i(TAG,"jiggle: " + mainActivity.JiggleActiv);
             if (!mainActivity.DeviceConnected) {
                 Log.i(TAG, "play music");
-                play(this, "mDong.mp3");
-                //play(this, "us_sirene.mp3");
+                //play(this, "mDong.mp3");
+                play(this, "us_sirene.mp3");
             }
         }
     }
@@ -118,17 +127,17 @@ public class SensorListener extends Service implements SensorEventListener {
         return null; // Started service, not bound
     }
     public static void play (Context context, String path) {
-        AssetFileDescriptor afd;
+        AssetFileDescriptor assetFileDescriptor;
         player = new MediaPlayer();
         try {
             //if (player.isPlaying()) player.stop();
-            afd = context.getAssets().openFd(path);
+            assetFileDescriptor = context.getAssets().openFd(path);
             player.setDataSource(
-                    afd.getFileDescriptor(),
-                    afd.getStartOffset(),
-                    afd.getLength()
+                    assetFileDescriptor.getFileDescriptor(),
+                    assetFileDescriptor.getStartOffset(),
+                    assetFileDescriptor.getLength()
             );
-            afd.close();
+            assetFileDescriptor.close();
             player.prepare();
             player.start();
         } catch (IOException e) {
