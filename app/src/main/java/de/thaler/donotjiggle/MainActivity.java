@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "myLog MainActivity";
     @SuppressLint("StaticFieldLeak")
     public static MainActivity mainActivity;
-    SharedPreferences mPreferenz;
+    SharedPreferences mPreference;
     SharedPreferences.Editor mPreferenzEditor;
     private TextView textViewConnect;
     public static final int REQUEST_BLUETOOTH_CONNECT = 1001;
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
         mainActivity = this;
-        mPreferenz = this.getSharedPreferences("myPreferences", 0);
+        mPreference = this.getSharedPreferences("myPreferences", 0);
         textViewConnect = mainActivity.findViewById(R.id.textViewBTConnect);
 
         ActivityCompat.requestPermissions(this, locationPerms, REQUEST_BLUETOOTH_CONNECT);
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void connectBluetoothDevice() {
         // bluetooth verbindung prüfen und wenn nötig herstellen
-        String DeviceName = mPreferenz.getString("DeviceName", "Nothing Phone (3a) Pro");
+        String DeviceName = mPreference.getString("DeviceName", "Nothing Phone (3a) Pro");
         Log.i(TAG, DeviceName);
 
         Intent intentSensor = new Intent(mainActivity, SensorListener.class);

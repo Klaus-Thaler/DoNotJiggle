@@ -44,7 +44,7 @@ import java.util.TimerTask;
 
 public class SensorListener extends Service implements SensorEventListener {
     String TAG = "myLog SensorListener";
-    SharedPreferences mPreferenz;
+    SharedPreferences mPreference;
     TextView textViewJiggle;
     private SensorManager sensorManager;
     static MediaPlayer player;
@@ -52,7 +52,7 @@ public class SensorListener extends Service implements SensorEventListener {
     @Override
     public void onCreate() {
         super.onCreate();
-        mPreferenz = this.getSharedPreferences("myPreferences", 0);
+        mPreference = this.getSharedPreferences("myPreferences", 0);
         //mPreferenzEditor = mPreferenz.edit();
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         if (sensorManager != null) {
@@ -77,15 +77,16 @@ public class SensorListener extends Service implements SensorEventListener {
         float gForce = (float) Math.sqrt(x * x + y * y + z * z);
 
         long now = System.currentTimeMillis();
-        if (gForce > mPreferenz.getFloat("gForce",1.1F)
-                && now - lastShakeTime > mPreferenz.getLong("shakeTime", 17000L)) {
+        if (gForce > mPreference.getFloat("gForce",1.1F)
+                && now - lastShakeTime > mPreference.getLong("shakeTime", 17000L)) {
             // gForce = empfindlichkeit, shakeTime = pause dazwischen
 
             if (!mainActivity.DeviceConnected) {
                 if (BluetoothConnectionMonitor.bluetoothConnectionMonitor != null) {
                     BluetoothConnectionMonitor.bluetoothConnectionMonitor.close();
                 }
-                BluetoothDevice device = BluetoothConnectionMonitor.devicesByName("Nothing Phone (3a) Pro");
+                BluetoothDevice device = BluetoothConnectionMonitor.devicesByName(
+                        mPreference.getString("myDevice", "Nothing Phone (3a) Pro"));
                 BluetoothConnectionMonitor.connectedBT(device);
             }
             lastShakeTime = now; // neue zeit für den nächsten schüttler

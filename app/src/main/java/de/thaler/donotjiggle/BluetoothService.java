@@ -23,9 +23,9 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.IBinder;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -33,6 +33,7 @@ import androidx.core.app.NotificationCompat;
 
 public class BluetoothService extends Service {
     String TAG = "myLog BluetoothService";
+    SharedPreferences mPreference;
     private static final String CHANNEL_ID = "bluetooth_connection";
     private static final int NOTIFICATION_ID = 1;
 
@@ -41,10 +42,12 @@ public class BluetoothService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        mPreference = this.getSharedPreferences("myPreferences", 0);
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification("Bluetooth wird verbunden"));
 
-        BluetoothDevice device = BluetoothConnectionMonitor.devicesByName("Nothing Phone (3a) Pro");
+        BluetoothDevice device = BluetoothConnectionMonitor.devicesByName(
+                mPreference.getString("myDevice", "Nothing Phone (3a) Pro"));
         BluetoothConnectionMonitor.connectedBT(device);
 
     }
