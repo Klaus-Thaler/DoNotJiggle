@@ -29,7 +29,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
-import android.nfc.Tag;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -46,7 +45,7 @@ import java.util.TimerTask;
 public class SensorListener extends Service implements SensorEventListener {
     String TAG = "myLog SensorListener";
     SharedPreferences mPreference;
-    TextView textViewJiggle, textViewConnect;
+    TextView textViewJiggle;
     private SensorManager sensorManager;
     static MediaPlayer player;
     private long lastShakeTime = 0;
@@ -68,8 +67,6 @@ public class SensorListener extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         textViewJiggle = mainActivity.findViewById(R.id.textViewJiggle);
-        textViewConnect = mainActivity.findViewById(R.id.textViewBTConnect);
-        textViewJiggle.setText("verfügbar");
         return START_STICKY; }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -81,13 +78,22 @@ public class SensorListener extends Service implements SensorEventListener {
 
         long now = System.currentTimeMillis();
         if (gForce > mPreference.getFloat("gForce",1.1F)
-                && now - lastShakeTime > mPreference.getLong("shakeTime", 1000L)) {
+                && now - lastShakeTime > mPreference.getLong("shakeTime", 17000L)) {
             // gForce = empfindlichkeit, shakeTime = pause dazwischen
 
+            if (!mainActivity.DeviceConnected) {
+                if (BluetoothConnectionMonitor.bluetoothConnectionMonitor != null) {
+                    BluetoothConnectionMonitor.bluetoothConnectionMonitor.close();
+                }
+                BluetoothDevice device = BluetoothConnectionMonitor.devicesByName(
+                        mPreference.getString("myDevice", "Nothing Phone (3a) Pro"));
+                BluetoothConnectionMonitor.connectedBT(device);
+            }
             lastShakeTime = now; // neue zeit für den nächsten schüttler
             Toast.makeText(this, "Geschüttelt!", Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Geschüttelt!");
             textViewJiggle.setText("geschüttelt");
+
             TimerTask task = new TimerTask() {
                 public void run() { // nach einer zeit den text wieder zurücksetzen
                     textViewJiggle.setText("");
@@ -96,11 +102,12 @@ public class SensorListener extends Service implements SensorEventListener {
             Timer timer = new Timer("Timer");
             timer.schedule(task, 2000L);
 
-            // prüfen ob verbindung verloren ist. dann alarm
-            if (mainActivity.statusConnection == 2) {
+            Log.i(TAG,"connected: " + mainActivity.DeviceConnected);
+            //Log.i(TAG,"jiggle: " + mainActivity.JiggleActiv);
+            if (!mainActivity.DeviceConnected) {
                 Log.i(TAG, "play music");
-                play(this, "mDong.mp3");
-                //play(this, "us_sirene.mp3");
+                //play(this, "mDong.mp3");
+                play(this, "us_sirene.mp3");
             }
         }
     }
