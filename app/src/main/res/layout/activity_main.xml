@@ -9,11 +9,11 @@
 
     <TextView
         android:id="@+id/textViewBTConnect"
-        android:layout_width="327dp"
-        android:layout_height="70dp"
+        android:layout_width="312dp"
+        android:layout_height="167dp"
         android:layout_marginTop="16dp"
         android:gravity="center"
-        android:text="BT connect"
+        android:text="@string/bluetooth_turn_on"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,22 +23,34 @@
         android:id="@+id/textViewJiggle"
         android:layout_width="319dp"
         android:layout_height="70dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="28dp"
         android:gravity="center"
         android:text="nix"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewBTConnect" />
 
     <ListView
         android:id="@+id/listViewDevices"
-        android:layout_width="352dp"
-        android:layout_height="379dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="321dp"
+        android:layout_height="129dp"
+        android:layout_marginTop="36dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewJiggle" />
+
+    <Button
+        android:id="@+id/buttonStart"
+        android:layout_width="326dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="24dp"
+        android:text="start"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listViewDevices" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

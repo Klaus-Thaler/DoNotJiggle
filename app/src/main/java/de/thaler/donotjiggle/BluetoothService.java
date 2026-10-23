@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -44,17 +45,20 @@ public class BluetoothService extends Service {
         super.onCreate();
         mPreference = this.getSharedPreferences("myPreferences", 0);
         createNotificationChannel();
-        startForeground(NOTIFICATION_ID, buildNotification("Bluetooth wird verbunden"));
+        startForeground(NOTIFICATION_ID, buildNotification("in connection with "
+            + mPreference.getString("myDevice", "nothing")));
 
         BluetoothDevice device = BluetoothConnectionMonitor.devicesByName(
-                mPreference.getString("myDevice", "Nothing Phone (3a) Pro"));
-        BluetoothConnectionMonitor.connectedBT(device);
+                mPreference.getString("myDevice", "nothing"));
 
+        Log.v(TAG, "create BT Service fuer " + mPreference.getString("myDevice", "nothing"));
+
+        BluetoothConnectionMonitor.connectedBT(device);
     }
 
     private Notification buildNotification(String text) {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Bluetooth-Verbindung")
+                .setContentTitle("Do not jiggle in action")
                 .setContentText(text)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setOngoing(true)

@@ -16,6 +16,8 @@ package de.thaler.donotjiggle;
  * limitations under the License.
  */
 
+import static de.thaler.donotjiggle.BluetoothConnectionMonitor.bluetoothConnectionMonitor;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -24,10 +26,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -49,8 +52,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("StaticFieldLeak")
     public static MainActivity mainActivity;
     SharedPreferences mPreference;
-    SharedPreferences.Editor mPreferenzEditor;
-    private TextView textViewConnect;
+    SharedPreferences.Editor mPreferenzEditor;;
     public static final int REQUEST_BLUETOOTH_CONNECT = 1001;
     private static final String[] locationPerms = {
             Manifest.permission.BLUETOOTH,
@@ -62,10 +64,10 @@ public class MainActivity extends AppCompatActivity {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         return mBluetoothAdapter.isEnabled();
     }
-    public Boolean DeviceConnected = false;
-    static HandlerThread LoopThread;
-    static Handler bgHandler;
-    static Runnable loop;
+    private Intent intentBT, sensorIntent;
+    private TextView textViewConnect;
+    private Button buttonStart;
+    public int statusConnection = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,52 +79,40 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        mainActivity = this;
-        mPreference = this.getSharedPreferences("myPreferences", 0);
-        textViewConnect = mainActivity.findViewById(R.id.textViewBTConnect);
 
         ActivityCompat.requestPermissions(this, locationPerms, REQUEST_BLUETOOTH_CONNECT);
 
+        mainActivity = this;
+
+        // return button in nav bar
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+        mPreference = this.getSharedPreferences("myPreferences", 0);
+
+        // Views
+        textViewConnect = mainActivity.findViewById(R.id.textViewBTConnect);
+        buttonStart = findViewById(R.id.buttonStart);
+
+        // bluetooth Connect Listener Service
+        intentBT = new Intent(mainActivity, BluetoothService.class);
+        startService(intentBT);
+
+        BluetoothStatus bluetoothStatus = new BluetoothStatus();
+        bluetoothStatus.start();
+
+        // all available Devices
         ListView listViewDevices = findViewById(R.id.listViewDevices);
         ArrayAdapter<String> myArrayAdapter =
                 new ArrayAdapter<>(
                         mainActivity,
                         R.layout.list_row,
                         R.id.quote_text,
-                        Objects.requireNonNull(
-                                BluetoothConnectionMonitor.listPairedDevicesByName()));
+                        Objects.requireNonNull(BluetoothConnectionMonitor.listPairedDevicesByName()));
         listViewDevices.setAdapter(myArrayAdapter);
-
-        connectBluetoothDevice();
     }
-    private void connectBluetoothDevice() {
-        // bluetooth verbindung prüfen und wenn nötig herstellen
-        String DeviceName = mPreference.getString("DeviceName", "Nothing Phone (3a) Pro");
-        Log.i(TAG, DeviceName);
 
-        Intent intentSensor = new Intent(mainActivity, SensorListener.class);
-        startService(intentSensor);
-        // create handler
-        LoopThread = new HandlerThread("LoopTimerBT");
-        LoopThread.start();
-        bgHandler = new Handler(LoopThread.getLooper());
-        loop = new Runnable() {
-            @Override
-            public void run() {
-                if (!isBluetoothEnabled()) { //Log.i(TAG, "isBluetoothEnabled " + isBluetoothEnabled());
-                    textViewConnect.setText("BT einschalten");
-                    DeviceConnected = false;
-                    bgHandler.postDelayed(loop, 5000L); // so lange bis bt eingeschaltet
-                } else {
-                    textViewConnect.setText("wait ...");
-                    Intent intentBT = new Intent(mainActivity, BluetoothService.class);
-                    startService(intentBT);
-                }
-            }
-        };
-        bgHandler.removeCallbacks(loop);
-        bgHandler.post(loop);
-    }
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -134,12 +124,26 @@ public class MainActivity extends AppCompatActivity {
         } else { Log.e(TAG, "permission error"); }
     }
 
+    /**
+     * @param item The menu item that was selected.
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId()==android.R.id.home){
+            stopService(intentBT);
+            //stopService(sensorIntent);
+            this.finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.e(TAG, "in destroy");
-        if (BluetoothConnectionMonitor.bluetoothConnectionMonitor != null) {
-            BluetoothConnectionMonitor.bluetoothConnectionMonitor.close();
+        if (bluetoothConnectionMonitor != null) {
+            bluetoothConnectionMonitor.close();
         }
         Intent intent = new Intent(mainActivity, SensorListener.class);
         stopService(intent);
@@ -148,12 +152,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         Log.e(TAG, "in pause");
-        connectBluetoothDevice();
+        //enabledBluetooth();
     }
     @Override
     protected void onResume() {
         super.onResume();
         Log.e(TAG, "in resume");
-        connectBluetoothDevice();
+        //enabledBluetooth();
     }
 }
