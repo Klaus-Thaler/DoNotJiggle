@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">DoNotJiggle</string>
+    <string name="bluetooth_turn_on">Turn on Bluetooth</string>
+    <string name="bluetooth_is_on">A Bluetooth connection is established. The device is ready.</string>
+    <string name="bluetooth_connection_lost">Bluetooth connection lost.</string>
+    <string name="firstMessage_fail">Establish a Bluetooth connection!</string>
 </resources>

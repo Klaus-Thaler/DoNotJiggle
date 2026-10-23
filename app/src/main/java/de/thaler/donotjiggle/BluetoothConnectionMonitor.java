@@ -31,6 +31,7 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
@@ -84,18 +85,15 @@ public final class BluetoothConnectionMonitor {
     public static void connectedBT(BluetoothDevice device) {
         bluetoothConnectionMonitor = new BluetoothConnectionMonitor(mainActivity,
                 new Listener() {
-                    final TextView textViewConnect = mainActivity.findViewById(R.id.textViewBTConnect);
                     @Override
                     public void onConnected() {
                         Log.e(TAG, "verbunden");
-                        textViewConnect.setText("verbunden");
-                        mainActivity.DeviceConnected = true;
+                        mainActivity.statusConnection = 1;
                     }
                     @Override
                     public void onDisconnected(int status) {
                         Log.e(TAG, "getrennt " + status);
-                        textViewConnect.setText("getrennt ");
-                        mainActivity.DeviceConnected = false;
+                        mainActivity.statusConnection = 2;
                     }
                 });
         bluetoothConnectionMonitor.connect(device);
@@ -138,7 +136,7 @@ public final class BluetoothConnectionMonitor {
             );
             return;
         }
-        bluetoothGatt = device.connectGatt(context, false, gattCallback);
+        if (device != null) bluetoothGatt = device.connectGatt(context, false, gattCallback);
     }
     @RequiresApi(api = Build.VERSION_CODES.S)
     public void close() {
