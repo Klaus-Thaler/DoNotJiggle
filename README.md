@@ -8,8 +8,6 @@ If the connection is lost and the mobile phone is moved whilst in the basket (a 
 
 <img width="340" height="600" alt="adbScreenShot20261025_104709" src="https://github.com/user-attachments/assets/fec0ede6-0281-497a-9bb3-a29277c4e4bf" />
 
-<img width="340" height="600" alt="adbScreenShot20261025_105031" src="https://github.com/user-attachments/assets/84ce077b-4bc4-4d1d-adb5-dceedfea1b2a" />
-
 <img width="340" height="600" alt="adbScreenShot20261025_105455" src="https://github.com/user-attachments/assets/97fd5cc6-07bd-4218-8e4c-354895cc53c5" />
 
 <img width="340" height="600" alt="adbScreenShot20261025_105535" src="https://github.com/user-attachments/assets/4919c0d7-feb2-43cd-8b7e-d631820c7e15" />
