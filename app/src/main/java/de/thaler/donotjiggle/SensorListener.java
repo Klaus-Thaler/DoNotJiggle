@@ -19,7 +19,6 @@ package de.thaler.donotjiggle;
 import static de.thaler.donotjiggle.MainActivity.mainActivity;
 
 import android.app.Service;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,7 +28,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
-import android.nfc.Tag;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -38,6 +36,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -54,7 +53,6 @@ public class SensorListener extends Service implements SensorEventListener {
     public void onCreate() {
         super.onCreate();
         mPreference = this.getSharedPreferences("myPreferences", 0);
-        //mPreferenzEditor = mPreferenz.edit();
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         if (sensorManager != null) {
             Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -69,7 +67,8 @@ public class SensorListener extends Service implements SensorEventListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         textViewJiggle = mainActivity.findViewById(R.id.textViewJiggle);
         textViewConnect = mainActivity.findViewById(R.id.textViewBTConnect);
-        textViewJiggle.setText("verfügbar");
+        textViewJiggle.setText(R.string.service_activ);
+        textViewJiggle.setTextColor(ContextCompat.getColor(mainActivity,R.color.teal_100));
         return START_STICKY; }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -85,12 +84,14 @@ public class SensorListener extends Service implements SensorEventListener {
             // gForce = empfindlichkeit, shakeTime = pause dazwischen
 
             lastShakeTime = now; // neue zeit für den nächsten schüttler
-            Toast.makeText(this, "Geschüttelt!", Toast.LENGTH_SHORT).show();
-            Log.i(TAG, "Geschüttelt!");
-            textViewJiggle.setText("geschüttelt");
+            Toast.makeText(this, "shaken!", Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "shaken!");
+            textViewJiggle.setText(R.string.shaken);
+            textViewJiggle.setTextColor(ContextCompat.getColor(mainActivity,R.color.red));
             TimerTask task = new TimerTask() {
                 public void run() { // nach einer zeit den text wieder zurücksetzen
                     textViewJiggle.setText("");
+                    textViewJiggle.setTextColor(ContextCompat.getColor(mainActivity,R.color.white));
                 }
             };
             Timer timer = new Timer("Timer");

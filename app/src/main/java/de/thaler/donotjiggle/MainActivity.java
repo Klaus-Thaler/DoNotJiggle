@@ -20,7 +20,6 @@ import static de.thaler.donotjiggle.BluetoothConnectionMonitor.bluetoothConnecti
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -28,11 +27,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -52,21 +49,14 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("StaticFieldLeak")
     public static MainActivity mainActivity;
     SharedPreferences mPreference;
-    SharedPreferences.Editor mPreferenzEditor;;
     public static final int REQUEST_BLUETOOTH_CONNECT = 1001;
     private static final String[] locationPerms = {
             Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_SCAN,
             Manifest.permission.BLUETOOTH_CONNECT
     };
-    public boolean isBluetoothEnabled()
-    {
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        return mBluetoothAdapter.isEnabled();
-    }
-    private Intent intentBT, sensorIntent;
-    private TextView textViewConnect;
-    private Button buttonStart;
+    BluetoothStatus bluetoothStatus;
+    private Intent intentBT;
     public int statusConnection = 0;
 
     @Override
@@ -89,26 +79,27 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        mPreference = this.getSharedPreferences("myPreferences", 0);
+        mPreference = this.getSharedPreferences("myPreferences", MODE_PRIVATE);
+        SharedPreferences.Editor mPreferenceEditor = mPreference.edit();
+        mPreferenceEditor.putString("connectDevice", "Nothing").apply();
 
-        // Views
-        textViewConnect = mainActivity.findViewById(R.id.textViewBTConnect);
-        buttonStart = findViewById(R.id.buttonStart);
+        Log.v(TAG, "diese Dev " + mPreference.getString("connectDevice", "nothing"));
 
         // bluetooth Connect Listener Service
         intentBT = new Intent(mainActivity, BluetoothService.class);
         startService(intentBT);
 
-        BluetoothStatus bluetoothStatus = new BluetoothStatus();
+        bluetoothStatus = new BluetoothStatus();
         bluetoothStatus.start();
 
         // all available Devices
         ListView listViewDevices = findViewById(R.id.listViewDevices);
+        listViewDevices. setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         ArrayAdapter<String> myArrayAdapter =
                 new ArrayAdapter<>(
                         mainActivity,
                         R.layout.list_row,
-                        R.id.quote_text,
+                        R.id.textViewListRow,
                         Objects.requireNonNull(BluetoothConnectionMonitor.listPairedDevicesByName()));
         listViewDevices.setAdapter(myArrayAdapter);
     }
@@ -126,11 +117,11 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * @param item The menu item that was selected.
-     * @return
+     * @return super.onOptionsItemSelected(item)
      */
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId()==android.R.id.home){
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) { // exit button
+        if (item.getItemId() == android.R.id.home){
             stopService(intentBT);
             //stopService(sensorIntent);
             this.finish();
@@ -152,12 +143,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         Log.e(TAG, "in pause");
-        //enabledBluetooth();
+        if (bluetoothStatus == null) {
+            bluetoothStatus = new BluetoothStatus();
+            bluetoothStatus.start();
+        }
     }
     @Override
     protected void onResume() {
         super.onResume();
         Log.e(TAG, "in resume");
-        //enabledBluetooth();
+        if (bluetoothStatus == null) {
+            bluetoothStatus = new BluetoothStatus();
+            bluetoothStatus.start();
+        }
     }
 }

@@ -46,12 +46,12 @@ public class BluetoothService extends Service {
         mPreference = this.getSharedPreferences("myPreferences", 0);
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification("in connection with "
-            + mPreference.getString("myDevice", "nothing")));
+            + mPreference.getString("connectDevice", "nothing")));
 
         BluetoothDevice device = BluetoothConnectionMonitor.devicesByName(
-                mPreference.getString("myDevice", "nothing"));
+                mPreference.getString("connectDevice", "nothing"));
 
-        Log.v(TAG, "create BT Service fuer " + mPreference.getString("myDevice", "nothing"));
+        Log.v(TAG, "create BT Service for " + mPreference.getString("connectDevice", "nothing"));
 
         BluetoothConnectionMonitor.connectedBT(device);
     }
@@ -68,7 +68,7 @@ public class BluetoothService extends Service {
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID, "Bluetooth-Verbindung",
+                    CHANNEL_ID, "Bluetooth-Connection",
                     NotificationManager.IMPORTANCE_LOW
             );
             getSystemService(NotificationManager.class).createNotificationChannel(channel);

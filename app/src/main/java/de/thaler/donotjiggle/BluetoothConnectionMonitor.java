@@ -28,10 +28,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
@@ -70,7 +68,7 @@ public final class BluetoothConnectionMonitor {
         }
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (adapter == null) {
-            Toast.makeText(mainActivity, "Bluetooth wird nicht unterstützt",
+            Toast.makeText(mainActivity, "Bluetooth is not supported!",
                     Toast.LENGTH_SHORT).show();
             return null;
         }
@@ -87,12 +85,12 @@ public final class BluetoothConnectionMonitor {
                 new Listener() {
                     @Override
                     public void onConnected() {
-                        Log.e(TAG, "verbunden");
+                        Log.e(TAG, "Connected");
                         mainActivity.statusConnection = 1;
                     }
                     @Override
                     public void onDisconnected(int status) {
-                        Log.e(TAG, "getrennt " + status);
+                        Log.e(TAG, "Disconnected " + status);
                         mainActivity.statusConnection = 2;
                     }
                 });
@@ -112,7 +110,7 @@ public final class BluetoothConnectionMonitor {
         }
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (adapter == null) {
-            Toast.makeText(mainActivity, "Bluetooth wird nicht unterstützt",
+            Toast.makeText(mainActivity, "Bluetooth is not supported!",
                     Toast.LENGTH_SHORT).show();
             return null;
         }
